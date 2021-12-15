@@ -8,7 +8,44 @@ import androidx.recyclerview.widget.RecyclerView
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.databinding.ListItemAsteroidBinding
 
-class MainAdapter : ListAdapter<Asteroid, MainAdapter.ViewHolder>(AsteroidDiffCallback()) {
+class MainAdapter(val clickListener: AsteroidListeners) :
+    ListAdapter<Asteroid, MainAdapter.ViewHolder>(AsteroidDiffCallback()) {
+    
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder.from(parent)
+    }
+    
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = getItem(position) as Asteroid
+        holder.bind(item, clickListener)
+    }
+    
+    /**
+     * View holder class for the list item.
+     */
+    class ViewHolder(private val binding: ListItemAsteroidBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ListItemAsteroidBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding)
+            }
+        }
+        
+        fun bind(asteroid: Asteroid, clickListener: AsteroidListeners) {
+            binding.asteroid = asteroid
+            binding.clickListener = clickListener
+            
+            //binding.textName.text = asteroid.codename
+            //binding.textCloseApproachDate.text = asteroid.closeApproachDate
+            //binding.layoutContainer.
+            //TODO: binding.imageStatusHazardous.setImageResource() = true//asteroid.isPotentiallyHazardous
+            
+            //Always used.
+            binding.executePendingBindings()
+        }
+    }
     
     /**
      * Callback for calculating the diff between two non-null items in a list.
@@ -26,29 +63,9 @@ class MainAdapter : ListAdapter<Asteroid, MainAdapter.ViewHolder>(AsteroidDiffCa
         }
     }
     
-    class ViewHolder(private val binding: ListItemAsteroidBinding) : RecyclerView.ViewHolder(binding.root) {
-        companion object {
-            fun from(parent: ViewGroup): ViewHolder {
-                val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = ListItemAsteroidBinding.inflate(layoutInflater, parent, false)
-                return ViewHolder(binding)
-            }
-        }
-        
-        fun bind(asteroid: Asteroid) {
-            binding.textName.text = asteroid.codename
-            binding.textCloseApproachDate.text = asteroid.closeApproachDate
-           // binding.imageStatusHazardous.setImageResource() = true//asteroid.isPotentiallyHazardous
-           
-        }
-    }
-    
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
-    }
-    
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = getItem(position) as Asteroid
-        holder.bind(item)
+
+    ////TODO: change parameter to Long
+    class AsteroidListeners(val clickListeners: (asteroidId: Asteroid) -> Unit) {
+        fun onClick(asteroid: Asteroid) = clickListeners(asteroid)
     }
 }

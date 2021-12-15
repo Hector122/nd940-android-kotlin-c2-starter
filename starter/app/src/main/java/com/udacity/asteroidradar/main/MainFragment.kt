@@ -2,8 +2,11 @@ package com.udacity.asteroidradar.main
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
@@ -24,9 +27,27 @@ class MainFragment : Fragment() {
         
         setHasOptionsMenu(true)
         
-        val adapter = MainAdapter()
-        adapter.submitList(getDummyList())
+        // init adapter and click listeners
+        val adapter = MainAdapter(MainAdapter.AsteroidListeners { id ->
+            viewModel.navigateToDetailScreen(id)
+        })
         binding.asteroidRecycler.adapter = adapter
+        
+        viewModel.asteroids.observe(viewLifecycleOwner, Observer {
+            it.let {
+                adapter.submitList(it)
+            }
+        })
+        
+        //Observe tha navigation variable
+        viewModel.navigateToDetail.observe(viewLifecycleOwner, Observer { asteroid ->
+            asteroid?.let {
+                findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
+                
+                //Reset the navigation variable.
+                viewModel.doneNavigationToDetailScreen()
+            }
+        })
         
         return binding.root
     }
@@ -38,32 +59,5 @@ class MainFragment : Fragment() {
     
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return true
-    }
-    
-    fun getDummyList(): List<Asteroid> {
-        return mutableListOf(Asteroid(49,
-                "Prueba (12323-)",
-                "12-3-2021",
-                59595.00,
-                6969696.56,
-                454.68,
-                435545.00,
-                true),
-                Asteroid(49,
-                        "Test (987-65)",
-                        "12-3-2021",
-                        59595.00,
-                        6969696.56,
-                        454.68,
-                        435545.00,
-                        true),
-                Asteroid(49,
-                        "Change (12323-)",
-                        "12-3-2021",
-                        59595.00,
-                        6969696.56,
-                        454.68,
-                        435545.00,
-                        true))
     }
 }
