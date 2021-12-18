@@ -25,7 +25,6 @@ interface NeoService {
     
     @GET("neo/rest/v1/feed")
     fun getNeoFeedAsync(@Query("start_date") startDate: String,
-                        @Query("end_date") endDate: String,
                         @Query("api_key") apiKey: String): Deferred<String>
 }
 
