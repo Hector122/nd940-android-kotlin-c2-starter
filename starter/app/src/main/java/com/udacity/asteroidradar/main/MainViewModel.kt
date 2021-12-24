@@ -1,18 +1,23 @@
 package com.udacity.asteroidradar.main
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
+import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.model.Asteroid
 import com.udacity.asteroidradar.model.PictureOfDay
 import com.udacity.asteroidradar.network.NeoApi
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+    
+    //
+    private val database = getDatabase(application) //private val repository =
     
     // List of asteroids
     private val _asteroids = MutableLiveData<List<Asteroid>>()
@@ -25,8 +30,11 @@ class MainViewModel : ViewModel() {
     private val _navigateToDetail = MutableLiveData<Asteroid>()
     val navigateToDetail: LiveData<Asteroid> get() = _navigateToDetail
     
+    //database dao
+    
     init {
         getImageOfTheDay()
+        
         getNeoFee()
     }
     
@@ -55,9 +63,12 @@ class MainViewModel : ViewModel() {
     private fun getNeoFee() {
         viewModelScope.launch {
             try {
-                val result = NeoApi.retrofitService.getNeoFeedAsync("2021-12-17", Constants.API_KEY)
+                val result = NeoApi.retrofitService.getNeoFeedAsync("2021-12-24", Constants.API_KEY)
                     .await()
+                
                 _asteroids.value = parseAsteroidsJsonResult(JSONObject(result))
+    
+                database.dao.insertAll()
                 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -66,36 +77,31 @@ class MainViewModel : ViewModel() {
     }
     
     
-    private fun setImageOnTheDay() {
-    
-    }
-    
-    
-    //TODO: delete.
-    //    private fun getDummyList(): List<Asteroid> {
-    //        return mutableListOf(Asteroid(49,
-    //                "Prueba (12323-)",
-    //                "12-3-2021",
-    //                59595.00,
-    //                6969696.56,
-    //                454.68,
-    //                435545.00,
-    //                true),
-    //                Asteroid(49,
-    //                        "Test (987-65)",
-    //                        "12-3-2021",
-    //                        59595.00,
-    //                        6969696.56,
-    //                        454.68,
-    //                        435545.00,
-    //                        true),
-    //                Asteroid(49,
-    //                        "Change (12323-)",
-    //                        "12-3-2021",
-    //                        59595.00,
-    //                        6969696.56,
-    //                        454.68,
-    //                        435545.00,
-    //                        true))
-    //    }
+   // TODO: delete.
+//        private fun getDummyList(): List<Asteroid> {
+//            return mutableListOf(Asteroid(49,
+//                    "Prueba (12323-)",
+//                    "12-3-2021",
+//                    59595.00,
+//                    6969696.56,
+//                    454.68,
+//                    435545.00,
+//                    true),
+//                    Asteroid(49,
+//                            "Test (987-65)",
+//                            "12-3-2021",
+//                            59595.00,
+//                            6969696.56,
+//                            454.68,
+//                            435545.00,
+//                            true),
+//                    Asteroid(49,
+//                            "Change (12323-)",
+//                            "12-3-2021",
+//                            59595.00,
+//                            6969696.56,
+//                            454.68,
+//                            435545.00,
+//                            true))
+//        }
 }
