@@ -6,22 +6,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.model.Asteroid
 import com.udacity.asteroidradar.model.PictureOfDay
 import com.udacity.asteroidradar.network.NeoApi
+import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    
-    //
-    private val database = getDatabase(application) //private val repository =
+    //Init repo
+    private val database = getDatabase(application)
+    private val repository = AsteroidRepository(database)
     
     // List of asteroids
-    private val _asteroids = MutableLiveData<List<Asteroid>>()
-    val asteroids: LiveData<List<Asteroid>> get() = _asteroids
+    val asteroids: LiveData<List<Asteroid>> = repository.asteroidsData
     
     private val _dayPicture = MutableLiveData<PictureOfDay>()
     val dayPicture: LiveData<PictureOfDay> get() = _dayPicture
@@ -30,12 +28,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _navigateToDetail = MutableLiveData<Asteroid>()
     val navigateToDetail: LiveData<Asteroid> get() = _navigateToDetail
     
-    //database dao
-    
     init {
         getImageOfTheDay()
         
-        getNeoFee()
+        getNeoFeed()
     }
     
     fun navigateToDetailScreen(asteroid: Asteroid) {
@@ -46,12 +42,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _navigateToDetail.value = null
     }
     
-    
     private fun getImageOfTheDay() {
         viewModelScope.launch {
             try {
-                _dayPicture.value = NeoApi.retrofitService.getImageOfTheDayAsync(Constants.API_KEY)
-                    .await()
+                _dayPicture.value = NeoApi.retrofitService
+                    .getImageOfTheDayAsync(Constants.API_KEY).await()
                 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -59,49 +54,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
-    
-    private fun getNeoFee() {
+    private fun getNeoFeed() {
         viewModelScope.launch {
             try {
-                val result = NeoApi.retrofitService.getNeoFeedAsync("2021-12-24", Constants.API_KEY)
-                    .await()
-                
-                _asteroids.value = parseAsteroidsJsonResult(JSONObject(result))
-    
-                database.dao.insertAll()
-                
+                repository.refreshAsteroidData()
+               
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
-    
-    
-   // TODO: delete.
-//        private fun getDummyList(): List<Asteroid> {
-//            return mutableListOf(Asteroid(49,
-//                    "Prueba (12323-)",
-//                    "12-3-2021",
-//                    59595.00,
-//                    6969696.56,
-//                    454.68,
-//                    435545.00,
-//                    true),
-//                    Asteroid(49,
-//                            "Test (987-65)",
-//                            "12-3-2021",
-//                            59595.00,
-//                            6969696.56,
-//                            454.68,
-//                            435545.00,
-//                            true),
-//                    Asteroid(49,
-//                            "Change (12323-)",
-//                            "12-3-2021",
-//                            59595.00,
-//                            6969696.56,
-//                            454.68,
-//                            435545.00,
-//                            true))
-//        }
 }

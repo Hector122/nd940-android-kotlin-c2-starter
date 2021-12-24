@@ -1,8 +1,7 @@
 package com.udacity.asteroidradar.api
 
-import android.os.Build
-import com.udacity.asteroidradar.model.Asteroid
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.model.Asteroid
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,4 +54,10 @@ private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
     }
 
     return formattedDateList
+}
+
+fun getCurrentDate(): String {
+    val currentTime = Calendar.getInstance().time
+    val dateFormat = SimpleDateFormat(Constants.API_QUERY_DATE_FORMAT, Locale.getDefault())
+    return dateFormat.format(currentTime)
 }

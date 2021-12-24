@@ -1,6 +1,7 @@
 package com.udacity.asteroidradar.database
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.udacity.asteroidradar.model.Asteroid
 
@@ -9,7 +10,7 @@ import com.udacity.asteroidradar.model.Asteroid
 interface AsteroidDao {
     
     @Query("SELECT * FROM databaseasteroid")
-    fun getAllAsteroid(): List<DataBaseAsteroid>
+    fun getAllAsteroid(): LiveData<List<DataBaseAsteroid>>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE) //Upsert inset or update
     fun insertAll(vararg dataBaseAsteroid: DataBaseAsteroid)
