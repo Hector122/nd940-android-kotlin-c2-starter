@@ -20,12 +20,14 @@ class AsteroidApplication : Application() {
         scheduleRecurringWork()
     }
     
+    /**
+     *  Cache the data of the asteroid by using a worker
+     */
     private fun scheduleRecurringWork() {
         applicationScope.launch {
-            
+            // Verify that device is charging and wifi is enabled.
             val constraints = Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.UNMETERED)
-                .setRequiresBatteryNotLow(true)
                 .setRequiresCharging(true)
                 .apply {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -35,17 +37,16 @@ class AsteroidApplication : Application() {
                 .build()
             
             //Periodic request 1 a day
-            val repeatingRequest =
-                PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS).setConstraints(
-                        constraints)
-                    .build()
+            val repeatingRequest = PeriodicWorkRequestBuilder<RefreshDataWorker>(1, TimeUnit.DAYS)
+                .setConstraints(constraints)
+                .build()
             
-            // Execute regulary
+            // Execute regularly
             WorkManager.getInstance()
-                .enqueueUniquePeriodicWork(RefreshDataWorker.WORK_NAME,
-                        ExistingPeriodicWorkPolicy.KEEP,
-                        repeatingRequest)
+                .enqueueUniquePeriodicWork(
+                    RefreshDataWorker.WORK_NAME,
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    repeatingRequest)
         }
-        
     }
 }

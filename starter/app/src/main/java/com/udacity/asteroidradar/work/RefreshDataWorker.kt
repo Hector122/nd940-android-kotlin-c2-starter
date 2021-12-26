@@ -15,18 +15,21 @@ class RefreshDataWorker(context: Context, workerParameters: WorkerParameters) :
         const val WORK_NAME = "RefreshDataWorker"
     }
     
-    override suspend fun doWork(): Result {
-        //init the repo
+    override suspend fun doWork(): Result { // Init the repo
         val database: AppDatabase = getDatabase(context = applicationContext)
-        val repository: AsteroidRepository = AsteroidRepository(database)
+        val repository = AsteroidRepository(database)
         
-        // try to get refresh the asteroid data.
+        // Try to get refresh the asteroid data and cache in the db.
         return try {
+            //Delete all data.
+            repository.deleteAsteroidData()
+            
+            //Fetch and cache new data
             repository.refreshAsteroidData()
+            
             Result.success() //If it good
         } catch (e: HttpException) {
             Result.retry() //try later. If it a Http exception.
         }
     }
-    
 }

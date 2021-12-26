@@ -9,11 +9,14 @@ import com.udacity.asteroidradar.model.Asteroid
 @Dao
 interface AsteroidDao {
     
-    @Query("SELECT * FROM databaseasteroid")
+    @Query("SELECT * FROM databaseasteroid WHERE close_approach_date >= DATE() ORDER BY close_approach_date ASC")
     fun getAllAsteroid(): LiveData<List<DataBaseAsteroid>>
     
     @Insert(onConflict = OnConflictStrategy.REPLACE) //Upsert inset or update
     fun insertAll(vararg dataBaseAsteroid: DataBaseAsteroid)
+    
+    @Query("DELETE FROM databaseasteroid WHERE close_approach_date < DATE()")
+    fun deleteAsteroid()
 }
 
 @Database(entities = [DataBaseAsteroid::class], version = 1)

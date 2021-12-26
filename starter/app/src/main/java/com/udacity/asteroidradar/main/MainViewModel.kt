@@ -5,11 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.model.Asteroid
 import com.udacity.asteroidradar.model.PictureOfDay
-import com.udacity.asteroidradar.network.NeoApi
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
 
@@ -21,8 +19,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     // List of asteroids
     val asteroids: LiveData<List<Asteroid>> = repository.asteroidsData
     
-    private val _dayPicture = MutableLiveData<PictureOfDay>()
-    val dayPicture: LiveData<PictureOfDay> get() = _dayPicture
+    // Picture of the day
+    val dayPicture: LiveData<PictureOfDay> = repository.picture
     
     //Navigation value
     private val _navigateToDetail = MutableLiveData<Asteroid>()
@@ -30,7 +28,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     
     init {
         getImageOfTheDay()
-        
         getNeoFeed()
     }
     
@@ -42,11 +39,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _navigateToDetail.value = null
     }
     
+    /**
+     * Get the Neo webservice image of the day.
+     */
     private fun getImageOfTheDay() {
         viewModelScope.launch {
             try {
-                _dayPicture.value = NeoApi.retrofitService
-                    .getImageOfTheDayAsync(Constants.API_KEY).await()
+                repository.getPictureOfTheDay()
                 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -54,11 +53,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
+    /**
+     * Get the list of asteroids to display
+     */
     private fun getNeoFeed() {
         viewModelScope.launch {
             try {
                 repository.refreshAsteroidData()
-               
+                
             } catch (e: Exception) {
                 e.printStackTrace()
             }
