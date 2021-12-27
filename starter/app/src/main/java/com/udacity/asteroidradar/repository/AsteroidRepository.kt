@@ -3,6 +3,7 @@ package com.udacity.asteroidradar.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.api.getCurrentDate
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
@@ -32,7 +33,7 @@ class AsteroidRepository(private val database: AppDatabase) {
         withContext(Dispatchers.IO) {
             
             // Get data from api
-            val result = NeoApi.retrofitService.getNeoFeedAsync(getCurrentDate(), Constants.API_KEY)
+            val result = NeoApi.retrofitService.getNeoFeedAsync(getCurrentDate(), BuildConfig.NASA_API_KEY)
                 .await() // Parse the data from API
             val neoFeed = parseAsteroidsJsonResult(JSONObject(result))
             
@@ -48,7 +49,7 @@ class AsteroidRepository(private val database: AppDatabase) {
     
     suspend fun getPictureOfTheDay() {
         withContext(Dispatchers.Main) {
-            val result = NeoApi.retrofitService.getImageOfTheDayAsync(Constants.API_KEY).await()
+            val result = NeoApi.retrofitService.getImageOfTheDayAsync(BuildConfig.NASA_API_KEY).await()
             _picture.value = result
         }
     }
