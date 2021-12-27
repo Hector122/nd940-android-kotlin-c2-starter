@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.udacity.asteroidradar.model.Asteroid
 import com.udacity.asteroidradar.databinding.ListItemAsteroidBinding
 
-class MainAdapter(val clickListener: AsteroidListeners) :
+class MainAdapter(private val clickListener: AsteroidListeners) :
     ListAdapter<Asteroid, MainAdapter.ViewHolder>(AsteroidDiffCallback()) {
     
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -37,11 +37,6 @@ class MainAdapter(val clickListener: AsteroidListeners) :
             binding.asteroid = asteroid
             binding.clickListener = clickListener
             
-            //binding.textName.text = asteroid.codename
-            //binding.textCloseApproachDate.text = asteroid.closeApproachDate
-            //binding.layoutContainer.
-            //TODO: binding.imageStatusHazardous.setImageResource() = true//asteroid.isPotentiallyHazardous
-            
             //Always used.
             binding.executePendingBindings()
         }
@@ -63,8 +58,6 @@ class MainAdapter(val clickListener: AsteroidListeners) :
         }
     }
     
-
-    ////TODO: change parameter to Long
     class AsteroidListeners(val clickListeners: (asteroidId: Asteroid) -> Unit) {
         fun onClick(asteroid: Asteroid) = clickListeners(asteroid)
     }
