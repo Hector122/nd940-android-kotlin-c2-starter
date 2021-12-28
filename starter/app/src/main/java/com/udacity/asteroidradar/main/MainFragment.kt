@@ -34,9 +34,12 @@ class MainFragment : Fragment() {
         viewModel.asteroids.observe(viewLifecycleOwner, Observer {
             it.let {
                 adapter.submitList(it)
+                
+                binding.swipeRefresh.isRefreshing = false
+                
             }
         })
-       
+        
         //Observe tha navigation variable
         viewModel.navigateToDetail.observe(viewLifecycleOwner, Observer { asteroid ->
             asteroid?.let {
@@ -46,6 +49,13 @@ class MainFragment : Fragment() {
                 viewModel.doneNavigationToDetailScreen()
             }
         })
+        
+        //swipe to refresh
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.getNeoFeed() //            viewModel.asteroids.observe(viewLifecycleOwner, Observer {
+            //                binding.swipeRefresh.isRefreshing = false
+            //            })
+        }
         
         return binding.root
     }

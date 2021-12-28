@@ -56,7 +56,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Get the list of asteroids to display
      */
-    private fun getNeoFeed() {
+     fun getNeoFeed() {
         viewModelScope.launch {
             try {
                 repository.refreshAsteroidData()
